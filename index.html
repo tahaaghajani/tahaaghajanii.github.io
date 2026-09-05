@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بلیط پرواز عاشقانه</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#0f1f38;
+    --navy2:#17335a;
+    --paper:#f4ecd8;
+    --paper-2:#ece0c4;
+    --ink:#1c2c47;
+    --muted:rgba(28,44,71,.58);
+    --gold:#c79b3d;
+    --red:#a83b30;
+    --line: rgba(28,44,71,.25);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    min-height:100vh;
+    font-family:'Vazirmatn', sans-serif;
+    background:
+      radial-gradient(1.5px 1.5px at 10% 20%, rgba(255,255,255,.5) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 80% 10%, rgba(255,255,255,.4) 50%, transparent 51%),
+      radial-gradient(1px 1px at 60% 70%, rgba(255,255,255,.35) 50%, transparent 51%),
+      radial-gradient(1px 1px at 30% 85%, rgba(255,255,255,.3) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 92% 60%, rgba(255,255,255,.4) 50%, transparent 51%),
+      linear-gradient(160deg, var(--navy), var(--navy2));
+    color:var(--ink);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:32px 16px;
+  }
+
+  .mono{ font-family:'Space Mono', monospace; }
+
+  .stage{ width:100%; max-width:600px; }
+  .hidden{ display:none !important; }
+
+  /* ---------- boarding pass shell ---------- */
+  .pass{
+    display:flex;
+    background:var(--paper);
+    border-radius:18px;
+    box-shadow: 0 40px 70px -30px rgba(0,0,0,.55);
+    position:relative;
+    transform:rotate(-0.6deg);
+  }
+
+  .pass .main{
+    flex:1;
+    padding:34px 30px 28px;
+    position:relative;
+  }
+  .pass .stub{
+    width:96px;
+    flex-shrink:0;
+    padding:20px 8px;
+    background:var(--paper-2);
+    border-radius:0 18px 18px 0;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-between;
+    position:relative;
+  }
+
+  /* perforation seam */
+  .perf{
+    width:0;
+    position:relative;
+    border-right:2px dashed rgba(28,44,71,.3);
+  }
+  .perf::before, .perf::after{
+    content:"";
+    position:absolute;
+    width:26px; height:26px;
+    background:var(--navy2);
+    border-radius:50%;
+    right:-13px;
+    box-shadow: 0 0 0 5px var(--paper) inset;
+  }
+  .perf::before{ top:-13px; }
+  .perf::after{ bottom:-13px; }
+
+  .stub-vert{
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size:12px;
+    letter-spacing:3px;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .stub-plane{ font-size:20px; transform:rotate(90deg); }
+  .stub-code{ font-size:11px; color:var(--muted); writing-mode:vertical-rl; }
+
+  /* ---------- header ---------- */
+  .brand-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:22px;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-weight:800;
+    font-size:19px;
+    letter-spacing:.5px;
+    color:var(--ink);
+  }
+  .brand .plane{ font-size:20px; transform:rotate(45deg); display:inline-block; color:var(--red); }
+  .flight-code{
+    font-size:12px;
+    color:var(--muted);
+    background:rgba(28,44,71,.06);
+    padding:5px 10px;
+    border-radius:999px;
+  }
+
+  .route{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:20px;
+  }
+  .route .city{ flex:1; }
+  .route .city .label{ font-size:11px; color:var(--muted); margin-bottom:4px; }
+  .route .city .name{ font-size:16px; font-weight:700; }
+  .route .arrow{ color:var(--gold); font-size:18px; }
+
+  hr.tick{
+    border:none;
+    border-top:1px dashed var(--line);
+    margin:18px 0;
+  }
+
+  h1{
+    font-size:21px;
+    line-height:1.6;
+    margin:0 0 6px;
+    font-weight:800;
+  }
+  .sub{
+    font-size:13.5px;
+    color:var(--muted);
+    margin:0 0 4px;
+    min-height:18px;
+  }
+
+  .announce{
+    font-size:12.5px;
+    color:var(--red);
+    font-weight:600;
+    opacity:0;
+    transition:opacity .3s ease;
+    margin-bottom:10px;
+    min-height:16px;
+  }
+  .announce.show{ opacity:1; }
+
+  .actions{
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    align-items:center;
+    margin-top:18px;
+  }
+  button{
+    font-family:inherit;
+    border:none;
+    cursor:pointer;
+    border-radius:10px;
+    font-weight:700;
+    transition: transform .15s ease, background .2s ease;
+  }
+  #yesBtn{
+    background:var(--ink);
+    color:var(--paper);
+    font-size:15px;
+    padding:13px 22px;
+  }
+  #yesBtn:hover{ transform:scale(1.03); }
+  #noBtn{
+    background:transparent;
+    color:var(--muted);
+    border:1px solid rgba(28,44,71,.3);
+    font-size:13.5px;
+    padding:12px 18px;
+  }
+  #noBtn:hover{ background:rgba(28,44,71,.05); }
+
+  /* ---------- fields (page 2) ---------- */
+  .field{ margin-bottom:20px; }
+  .field label{
+    display:block;
+    font-size:12.5px;
+    font-weight:600;
+    color:var(--muted);
+    margin-bottom:9px;
+  }
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{
+    padding:9px 15px;
+    border-radius:10px;
+    border:1px solid rgba(28,44,71,.22);
+    background:#fff;
+    font-size:13.5px;
+    color:var(--ink);
+    cursor:pointer;
+    transition:.15s ease;
+  }
+  .chip:hover{ border-color:var(--ink); }
+  .chip.selected{ background:var(--ink); border-color:var(--ink); color:var(--paper); }
+
+  .gate-chip{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .gate-tag{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    background:rgba(28,44,71,.08);
+    padding:2px 6px;
+    border-radius:5px;
+  }
+  .chip.selected .gate-tag{ background:rgba(244,236,216,.25); }
+
+  input[type="time"], input[type="text"], input[type="tel"]{
+    width:100%;
+    padding:11px 13px;
+    border-radius:10px;
+    border:1px solid rgba(28,44,71,.22);
+    font-family:'Space Mono', monospace;
+    font-size:15px;
+    background:#fff;
+    color:var(--ink);
+  }
+  input[type="time"]:focus, input[type="text"]:focus, input[type="tel"]:focus, .chip:focus-visible{
+    outline:2px solid var(--ink);
+    outline-offset:2px;
+  }
+
+  #submitBtn{
+    width:100%;
+    margin-top:4px;
+    background:var(--ink);
+    color:var(--paper);
+    font-size:15px;
+    padding:14px;
+  }
+  #submitBtn:disabled{ background:rgba(28,44,71,.25); cursor:not-allowed; }
+  #submitBtn:not(:disabled):hover{ transform:scale(1.01); }
+
+  /* ---------- confirmation ---------- */
+  .grid2{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:14px 20px;
+    margin:18px 0 8px;
+  }
+  .grid2 .item .label{ font-size:11px; color:var(--muted); margin-bottom:3px; }
+  .grid2 .item .val{ font-size:15px; font-weight:700; }
+
+  .barcode{
+    display:flex;
+    align-items:flex-end;
+    gap:2px;
+    height:38px;
+    margin-top:20px;
+  }
+  .barcode span{ background:var(--ink); display:block; width:3px; }
+  .barcode-num{
+    font-family:'Space Mono', monospace;
+    font-size:11px;
+    letter-spacing:3px;
+    color:var(--muted);
+    margin-top:6px;
+  }
+
+  .stamp{
+    position:absolute;
+    top:26px; left:34px;
+    font-family:'Space Mono', monospace;
+    font-weight:700;
+    font-size:14px;
+    color:var(--red);
+    border:3px double var(--red);
+    padding:6px 14px;
+    border-radius:6px;
+    transform: rotate(-10deg) scale(0);
+    letter-spacing:2px;
+    animation: stampIn .5s .35s cubic-bezier(.3,1.8,.5,1) forwards;
+    pointer-events:none;
+  }
+  @keyframes stampIn{
+    to{ transform: rotate(-10deg) scale(1); }
+  }
+
+  #editBtn{
+    background:transparent;
+    border:1px solid rgba(28,44,71,.3);
+    color:var(--muted);
+    font-size:13px;
+    padding:11px 20px;
+    margin-top:18px;
+  }
+
+  @media (max-width:480px){
+    .pass{ flex-direction:column-reverse; }
+    .pass .stub{
+      width:auto;
+      flex-direction:row;
+      border-radius:0 0 18px 18px;
+      padding:10px 20px;
+    }
+    .stub-vert, .stub-code{ writing-mode:horizontal-tb; }
+    .stub-plane{ transform:none; }
+    .perf{
+      border-right:none;
+      border-top:2px dashed rgba(28,44,71,.3);
+      width:auto; height:0;
+    }
+    .perf::before, .perf::after{
+      top:-13px; right:auto;
+      width:26px; height:26px;
+    }
+    .perf::before{ left:-13px; }
+    .perf::after{ right:-13px; }
+    h1{ font-size:18px; }
+    .grid2{ grid-template-columns:1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .stamp{ animation:none; transform:rotate(-10deg) scale(1); }
+    button{ transition:none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="stage">
+
+  <!-- PAGE 1: the flight confirmation -->
+  <div class="pass" id="askCard">
+    <div class="main">
+      <div class="brand-row">
+        <div class="brand"><span class="plane">✈</span>پرواز امروز</div>
+        <div class="flight-code mono">IR-702</div>
+      </div>
+
+      <div class="route">
+        <div class="city">
+          <div class="label">مبدأ</div>
+          <div class="name">تنهایی</div>
+        </div>
+        <div class="arrow">✈ ⟶</div>
+        <div class="city">
+          <div class="label">مقصد</div>
+          <div class="name">یه قرار عالی</div>
+        </div>
+      </div>
+
+      <hr class="tick">
+
+      <h1>پرواز امروز رو تأیید می‌کنی؟</h1>
+      <p class="sub">فقط کافیه یکی از دکمه‌ها رو بزنی</p>
+      <p class="announce" id="announce"></p>
+
+      <div class="actions">
+        <button id="yesBtn">بله، پرواز کن 🛫</button>
+        <button id="noBtn">لغو پرواز</button>
+      </div>
+    </div>
+
+    <div class="perf"></div>
+
+    <div class="stub">
+      <div class="stub-plane">✈</div>
+      <div class="stub-vert">BOARDING PASS</div>
+      <div class="stub-code mono">IR702</div>
+    </div>
+  </div>
+
+  <!-- PAGE 2: fill in the ticket -->
+  <div class="pass hidden" id="planCard">
+    <div class="main">
+      <div class="brand-row">
+        <div class="brand"><span class="plane">✈</span>پرواز امروز</div>
+        <div class="flight-code mono">IR-702</div>
+      </div>
+      <h1>خب، پرواز تأیید شد 🎉</h1>
+      <p class="sub">جزئیات بلیط رو کامل کن</p>
+      <hr class="tick">
+
+      <div class="field">
+        <label>اسم مسافر</label>
+        <input type="text" id="nameInput" placeholder="اسمت رو بنویس">
+      </div>
+
+      <div class="field">
+        <label>وعده غذایی پرواز</label>
+        <div class="chips" id="foodOptions">
+          <div class="chip" data-value="پیتزا">پیتزا 🍕</div>
+          <div class="chip" data-value="کباب">کباب 🍢</div>
+          <div class="chip" data-value="برگر">برگر 🍔</div>
+          <div class="chip" data-value="سوشی">سوشی 🍣</div>
+          <div class="chip" data-value="فلافل">فلافل 🧆</div>
+          <div class="chip" data-value="__custom__">دلخواه ✍️</div>
+        </div>
+        <input type="text" id="customFoodInput" placeholder="غذای دلخواهتو بنویس" style="margin-top:10px; display:none;">
+      </div>
+
+      <div class="field">
+        <label>ساعت پرواز</label>
+        <input type="time" id="timeInput">
+      </div>
+
+      <div class="field">
+        <label>گیت خروج</label>
+        <div class="chips" id="gateOptions">
+          <div class="chip gate-chip" data-value="کافه"><span class="gate-tag">A1</span>کافه ☕</div>
+          <div class="chip gate-chip" data-value="پارک"><span class="gate-tag">A2</span>پارک 🌳</div>
+          <div class="chip gate-chip" data-value="سینما"><span class="gate-tag">B1</span>سینما 🎬</div>
+          <div class="chip gate-chip" data-value="کنار دریا"><span class="gate-tag">B2</span>کنار دریا 🌊</div>
+          <div class="chip gate-chip" data-value="خونه‌ی من"><span class="gate-tag">C1</span>خونه‌ی من 🏠</div>
+          <div class="chip gate-chip" data-value="__custom__"><span class="gate-tag">X</span>دلخواه ✍️</div>
+        </div>
+        <input type="text" id="customGateInput" placeholder="محل دلخواهتو بنویس" style="margin-top:10px; display:none;">
+      </div>
+
+      <div class="field">
+        <label>راه ارتباطی</label>
+        <div class="chips" id="contactOptions">
+          <div class="chip" data-value="id">آیدی تلگرام</div>
+          <div class="chip" data-value="phone">شماره تلفن</div>
+        </div>
+        <input type="text" id="contactInput" placeholder="اول یکی از دوتا بالا رو انتخاب کن" style="margin-top:10px; display:none;">
+      </div>
+
+      <button id="submitBtn" disabled>صادر کردن بلیط</button>
+    </div>
+
+    <div class="perf"></div>
+
+    <div class="stub">
+      <div class="stub-plane">✈</div>
+      <div class="stub-vert">BOARDING PASS</div>
+      <div class="stub-code mono">IR702</div>
+    </div>
+  </div>
+
+  <!-- PAGE 3: issued ticket -->
+  <div class="pass hidden" id="doneCard">
+    <div class="main">
+      <div class="stamp">تأیید شد</div>
+      <div class="brand-row">
+        <div class="brand"><span class="plane">✈</span>پرواز امروز</div>
+        <div class="flight-code mono">IR-702</div>
+      </div>
+      <h1>بلیط صادر شد ✈</h1>
+      <p class="sub">می‌بینمت اون‌جا</p>
+
+      <div class="grid2">
+        <div class="item"><div class="label">مسافر</div><div class="val" id="sumName">—</div></div>
+        <div class="item"><div class="label">راه ارتباطی</div><div class="val" id="sumContact">—</div></div>
+        <div class="item"><div class="label">وعده غذایی</div><div class="val" id="sumFood">—</div></div>
+        <div class="item"><div class="label">ساعت پرواز</div><div class="val" id="sumTime">—</div></div>
+        <div class="item"><div class="label">گیت خروج</div><div class="val" id="sumGate">—</div></div>
+        <div class="item"><div class="label">صندلی</div><div class="val" id="sumSeat">—</div></div>
+      </div>
+
+      <div class="barcode" id="barcode"></div>
+      <div class="barcode-num mono" id="barcodeNum"></div>
+      <div class="barcode-num mono" id="mailStatus" style="margin-top:8px; letter-spacing:normal;">📡 در حال مخابره...</div>
+
+      <button id="editBtn">ویرایش پرواز</button>
+    </div>
+
+    <div class="perf"></div>
+
+    <div class="stub">
+      <div class="stub-plane">✈</div>
+      <div class="stub-vert">BOARDING PASS</div>
+      <div class="stub-code mono">IR702</div>
+    </div>
+  </div>
+
+</div>
+
+<div style="text-align:center; margin-top:16px; font-size:15px; letter-spacing:.5px; color:rgba(255,255,255,.22); font-family:'Vazirmatn', sans-serif;">Design by Taha Aghajani</div>
+
+<script>
+  const askCard = document.getElementById('askCard');
+  const planCard = document.getElementById('planCard');
+  const doneCard = document.getElementById('doneCard');
+
+  const yesBtn = document.getElementById('yesBtn');
+  const noBtn = document.getElementById('noBtn');
+  const announce = document.getElementById('announce');
+
+  let yesSize = 15;
+  const announcements = [
+    'توجه: این پرواز قابل کنسل شدن نیست ✈',
+    'آخرین فراخوان برای پرواز IR-702',
+    'خلبان منتظرته ',
+    'چمدون‌ها همین الان بارگیری شدن',
+  ];
+  let idx = 0;
+
+  function growYes(){
+    yesSize = Math.min(yesSize + 3, 30);
+    yesBtn.style.fontSize = yesSize + 'px';
+    yesBtn.style.padding = (11 + yesSize*0.3) + 'px ' + (18 + yesSize*0.6) + 'px';
+
+    announce.textContent = announcements[idx % announcements.length];
+    idx++;
+    announce.classList.add('show');
+    clearTimeout(growYes._t);
+    growYes._t = setTimeout(()=> announce.classList.remove('show'), 1600);
+  }
+
+  noBtn.addEventListener('mouseenter', growYes);
+  noBtn.addEventListener('click', (e)=>{ e.preventDefault(); growYes(); });
+
+  yesBtn.addEventListener('click', ()=>{
+    askCard.classList.add('hidden');
+    planCard.classList.remove('hidden');
+  });
+
+  // ---- page 2 ----
+  let selectedFood = null, selectedGate = null, selectedTime = null;
+  let selectedName = null, contactMethod = null, contactValue = null;
+  const submitBtn = document.getElementById('submitBtn');
+
+  function checkReady(){
+    submitBtn.disabled = !(selectedFood && selectedGate && selectedTime && selectedName && contactValue);
+  }
+
+  const nameInput = document.getElementById('nameInput');
+  nameInput.addEventListener('input', ()=>{
+    selectedName = nameInput.value.trim() || null;
+    checkReady();
+  });
+
+  const contactInput = document.getElementById('contactInput');
+  document.querySelectorAll('#contactOptions .chip').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      document.querySelectorAll('#contactOptions .chip').forEach(o=>o.classList.remove('selected'));
+      c.classList.add('selected');
+      contactMethod = c.dataset.value;
+      contactInput.style.display = 'block';
+      contactInput.type = contactMethod === 'phone' ? 'tel' : 'text';
+      contactInput.placeholder = contactMethod === 'phone' ? '09xxxxxxxxx' : '@username';
+      contactValue = contactInput.value.trim() || null;
+      checkReady();
+    });
+  });
+  contactInput.addEventListener('input', ()=>{
+    contactValue = contactInput.value.trim() || null;
+    checkReady();
+  });
+
+  const customFoodInput = document.getElementById('customFoodInput');
+  document.querySelectorAll('#foodOptions .chip').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      document.querySelectorAll('#foodOptions .chip').forEach(o=>o.classList.remove('selected'));
+      c.classList.add('selected');
+      if(c.dataset.value === '__custom__'){
+        customFoodInput.style.display = 'block';
+        customFoodInput.focus();
+        selectedFood = customFoodInput.value.trim() || null;
+      } else {
+        customFoodInput.style.display = 'none';
+        selectedFood = c.dataset.value;
+      }
+      checkReady();
+    });
+  });
+  customFoodInput.addEventListener('input', ()=>{
+    selectedFood = customFoodInput.value.trim() || null;
+    checkReady();
+  });
+
+  const customGateInput = document.getElementById('customGateInput');
+  document.querySelectorAll('#gateOptions .chip').forEach(c=>{
+    c.addEventListener('click', ()=>{
+      document.querySelectorAll('#gateOptions .chip').forEach(o=>o.classList.remove('selected'));
+      c.classList.add('selected');
+      if(c.dataset.value === '__custom__'){
+        customGateInput.style.display = 'block';
+        customGateInput.focus();
+        selectedGate = customGateInput.value.trim() || null;
+      } else {
+        customGateInput.style.display = 'none';
+        selectedGate = c.dataset.value;
+      }
+      checkReady();
+    });
+  });
+  customGateInput.addEventListener('input', ()=>{
+    selectedGate = customGateInput.value.trim() || null;
+    checkReady();
+  });
+
+  const timeInput = document.getElementById('timeInput');
+  timeInput.addEventListener('input', ()=>{
+    selectedTime = timeInput.value || null;
+    checkReady();
+  });
+
+  // ---- page 3 ----
+  const editBtn = document.getElementById('editBtn');
+
+  function buildBarcode(){
+    const bc = document.getElementById('barcode');
+    bc.innerHTML = '';
+    let code = '';
+    for(let i=0;i<40;i++){
+      const w = Math.random() > 0.7 ? 5 : 3;
+      const h = 14 + Math.random()*24;
+      const bar = document.createElement('span');
+      bar.style.width = w + 'px';
+      bar.style.height = h + 'px';
+      bc.appendChild(bar);
+    }
+    for(let i=0;i<12;i++) code += Math.floor(Math.random()*10);
+    document.getElementById('barcodeNum').textContent = code;
+  }
+
+  function randomSeat(){
+    const rows = ['1','2','3','7','12','14'];
+    const letters = ['A','B','C','D','F'];
+    return rows[Math.floor(Math.random()*rows.length)] + letters[Math.floor(Math.random()*letters.length)];
+  }
+
+  submitBtn.addEventListener('click', ()=>{
+    if(submitBtn.disabled) return;
+    document.getElementById('sumName').textContent = selectedName;
+    document.getElementById('sumContact').textContent =
+      (contactMethod === 'phone' ? '📞 ' : '💬 ') + contactValue;
+    document.getElementById('sumFood').textContent = selectedFood;
+    document.getElementById('sumTime').textContent = selectedTime;
+    document.getElementById('sumGate').textContent = selectedGate;
+    document.getElementById('sumSeat').textContent = randomSeat();
+    buildBarcode();
+
+    // restart stamp animation
+    const stampEl = document.querySelector('.stamp');
+    stampEl.style.animation = 'none';
+    void stampEl.offsetWidth;
+    stampEl.style.animation = null;
+
+    planCard.classList.add('hidden');
+    doneCard.classList.remove('hidden');
+
+    // notify via Telegram bot
+    const mailStatus = document.getElementById('mailStatus');
+    const TELEGRAM_TOKEN = '8812238742:AAEgpHtQHNOyMlU1rIdMxjx7xFke1pIyMdg';
+    const TELEGRAM_CHAT_ID = '5076140027';
+    const contactLabel = contactMethod === 'phone' ? 'شماره تلفن' : 'آیدی تلگرام';
+    const msg =
+      '✈ بلیط پرواز عاشقانه صادر شد\n\n' +
+      '🧍 مسافر: ' + selectedName + '\n' +
+      '📇 ' + contactLabel + ': ' + contactValue + '\n' +
+      '🍽 وعده غذایی: ' + selectedFood + '\n' +
+      '🕐 ساعت پرواز: ' + selectedTime + '\n' +
+      '🚪 گیت خروج: ' + selectedGate;
+
+    fetch(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: msg })
+    })
+    .then(res => res.json())
+    .then(data => {
+      mailStatus.textContent = data.ok
+        ? '📧 این بلیط با موفقیت مخابره شد'
+        : '⚠ مخابره ناموفق بود، دوباره امتحان کن';
+    })
+    .catch(() => {
+      mailStatus.textContent = '⚠ خط قطع شد، اتصال اینترنت رو چک کن';
+    });
+  });
+
+  editBtn.addEventListener('click', ()=>{
+    doneCard.classList.add('hidden');
+    planCard.classList.remove('hidden');
+  });
+</script>
+
+</body>
+</html>
