@@ -446,7 +446,7 @@
         <input type="text" id="contactInput" placeholder="اول یکی از دوتا بالا رو انتخاب کن" style="margin-top:10px; display:none;">
       </div>
 
-      <button id="submitBtn" disabled>صادر کردن بلیط</button>
+      <button id="submitBtn" disabled> (VPN ON)صادر کردن بلیط</button>
     </div>
 
     <div class="perf"></div>
@@ -684,10 +684,10 @@
     .then(data => {
       mailStatus.textContent = data.ok
         ? '📧 این بلیط با موفقیت مخابره شد'
-        : '⚠ مخابره ناموفق بود، دوباره امتحان کن';
+        : ' ⚠ مخابره ناموفق بود، دوباره امتحان کن فیلتر شکن رو روشن کنننننن';
     })
     .catch(() => {
-      mailStatus.textContent = '⚠ خط قطع شد، اتصال اینترنت رو چک کن';
+      mailStatus.textContent = '⚠ خط قطع شد، اتصال اینترنت رو چک کن فیلتر شکن رو روشن کنننننن';
     });
   });
 
